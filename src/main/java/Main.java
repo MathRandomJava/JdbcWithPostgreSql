@@ -19,34 +19,29 @@ public class Main {
 
     }
 
-    private static Connection getConnection() {
-        Connection connection = null;
+    private static Connection getConnection() throws SQLException{
         try {
             Class.forName("org.postgresql.Driver");
-
-            connection = DriverManager.getConnection(URL, USER, PSWD);
         } catch (ClassNotFoundException e) {
             System.out.println("PostgreSQL JDBC Driver is not found. Include it in your library path");
             e.printStackTrace();
-        } catch (SQLException e) {
-            System.out.println("Connection Failed");
-            e.printStackTrace();
         }
-        return connection;
+        return DriverManager.getConnection(URL, USER, PSWD);
     }
 
     private static void createUserTable() {
-        Connection connection = getConnection();
-        if (connection != null) {
+        try (Connection connection = getConnection()) {
+            if (connection != null) {
 
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(SQL);
-                System.out.println("Table users created");
-            } catch (SQLException e) {
-                e.printStackTrace();
-                System.out.println("Creating table is failed");
+                try (Statement statement = connection.createStatement()) {
+                    statement.execute(SQL);
+                    System.out.println("Table users created or already exists");
+                }
+
             }
-
+        } catch (SQLException e) {
+            System.out.println("Creating table is failed");
+            e.printStackTrace();
         }
     }
 }
